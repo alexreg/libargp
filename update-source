@@ -1,0 +1,21 @@
+#!/bin/bash
+
+if ! gnulib-tool --version 2> /dev/null ; then
+	echo "Could not find gnulib-tool program" >&2
+	exit 69 # EX_UNAVAILABLE
+fi
+
+ARGP_DIR="argp"
+ARGP_DIR_BACKUP="$ARGP_DIR.backup"
+
+mv "$ARGP_DIR" "$ARGP_DIR_BACKUP" &&
+gnulib-tool --create-testdir --lib=libargp --dir="$ARGP_DIR" argp
+if [[ $? == 0 ]] ; then
+	rm -Rf "$ARGP_DIR_BACKUP"
+	echo "Successfully reimported 'argp' module"
+	exit 0 # EX_OK
+else
+	echo "Error reimporting 'argp' module; restoring old version" >&2
+	mv "$ARGP_DIR_BACKUP" "$ARGP_DIR"
+	exit 70 # EX_SOFTWARE
+fi

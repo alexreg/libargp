@@ -1,0 +1,12 @@
+#!/bin/bash
+
+INSTALL="install -v"
+LN="ln -sf -v"
+
+[[ -n "$INSTALL_PREFIX" ]] || INSTALL_PREFIX="/usr/local"
+
+ARGP_DIR="argp"
+BUILD_DIR="output"
+
+$INSTALL -m 644 "$BUILD_DIR/gllib/libargp.a" "$INSTALL_PREFIX/lib"
+$INSTALL -m 644 "include/argp.h" "$INSTALL_PREFIX/include"

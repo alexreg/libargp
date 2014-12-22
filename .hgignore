@@ -1,0 +1,12 @@
+syntax: glob
+
+*~
+
+aclocal.m4
+autom4te*.cache
+*.in
+
+syntax: regexp
+
+^build-aux/
+^output/

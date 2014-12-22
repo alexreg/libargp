@@ -1,0 +1,13 @@
+#!/bin/bash
+
+CC="cc -std=c99 -Wall"
+
+ARGP_DIR="argp"
+BUILD_DIR="output"
+
+[[ -d "$BUILD_DIR/" ]] || mkdir "$BUILD_DIR/"
+
+cd "$BUILD_DIR"
+autoreconf -i $ARGP_DIR/argp
+../$ARGP_DIR/configure
+make
