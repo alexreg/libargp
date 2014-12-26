@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+LIBRARY_NAME="libargp"
+GNULIB_DIR="gnulib"
+BUILD_DIR="output"
+
+CC="cc -std=c99 -Wall"
+INSTALL="install -v"
+LN="ln -sf -v"

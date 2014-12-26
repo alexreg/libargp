@@ -1,21 +1,23 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
+source ./common
 
 if ! gnulib-tool --version 2> /dev/null ; then
-	echo "Could not find gnulib-tool program" >&2
+	echo "Could not find `gnulib-tool` program" >&2
 	exit 69 # EX_UNAVAILABLE
 fi
 
-ARGP_DIR="argp"
-ARGP_DIR_BACKUP="$ARGP_DIR.backup"
+GNULIB_DIR_BACKUP="$GNULIB_DIR.backup" &&
+if [[ -e "$GNULIB_DIR" ]] ; then mv "$GNULIB_DIR" "$GNULIB_DIR_BACKUP" ; fi &&
 
-mv "$ARGP_DIR" "$ARGP_DIR_BACKUP" &&
-gnulib-tool --create-testdir --lib=libargp --dir="$ARGP_DIR" argp
-if [[ $? == 0 ]] ; then
-	rm -Rf "$ARGP_DIR_BACKUP"
-	echo "Successfully reimported 'argp' module"
-	exit 0 # EX_OK
-else
-	echo "Error reimporting 'argp' module; restoring old version" >&2
-	mv "$ARGP_DIR_BACKUP" "$ARGP_DIR"
+gnulib-tool --create-testdir --lib="$LIBRARY_NAME" --dir="$GNULIB_DIR" argp
+
+if ! [[ $? ]] ; then
+	echo "Error reimporting gnulib modules; restoring backup" >&2
+	if [[ -e "$GNULIB_DIR" ]] ; then mv "$GNULIB_DIR_BACKUP" "$GNULIB_DIR" ; fi
 	exit 70 # EX_SOFTWARE
 fi
+
+rm -Rf "$GNULIB_DIR_BACKUP"
+echo "Successfully reimported gnulib modules"
+exit 0 # EX_OK
