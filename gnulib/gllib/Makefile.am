@@ -1,6 +1,6 @@
 ## DO NOT EDIT! GENERATED AUTOMATICALLY!
 ## Process this file with automake to produce Makefile.in.
-# Copyright (C) 2002-2014 Free Software Foundation, Inc.
+# Copyright (C) 2002-2015 Free Software Foundation, Inc.
 #
 # This file is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -92,10 +92,7 @@ EXTRA_DIST += alloca.in.h
 
 ## begin gnulib module argp
 
-libargp_a_SOURCES += argp.h argp-ba.c argp-eexst.c \
-           argp-fmtstream.c argp-fmtstream.h argp-fs-xinl.c argp-help.c \
-           argp-namefrob.h argp-parse.c argp-pin.c argp-pv.c argp-pvh.c \
-           argp-xinl.c
+libargp_a_SOURCES += argp.h argp-ba.c argp-eexst.c             argp-fmtstream.c argp-fmtstream.h argp-fs-xinl.c argp-help.c             argp-namefrob.h argp-parse.c argp-pin.c argp-pv.c argp-pvh.c             argp-xinl.c
 
 ## end   gnulib module argp
 
@@ -1368,6 +1365,7 @@ time.h: time.in.h $(top_builddir)/config.status $(CXXDEFS_H) $(ARG_NONNULL_H) $(
 	      -e 's|@''PTHREAD_H_DEFINES_STRUCT_TIMESPEC''@|$(PTHREAD_H_DEFINES_STRUCT_TIMESPEC)|g' \
 	      -e 's|@''SYS_TIME_H_DEFINES_STRUCT_TIMESPEC''@|$(SYS_TIME_H_DEFINES_STRUCT_TIMESPEC)|g' \
 	      -e 's|@''TIME_H_DEFINES_STRUCT_TIMESPEC''@|$(TIME_H_DEFINES_STRUCT_TIMESPEC)|g' \
+	      -e 's|@''UNISTD_H_DEFINES_STRUCT_TIMESPEC''@|$(UNISTD_H_DEFINES_STRUCT_TIMESPEC)|g' \
 	      -e '/definitions of _GL_FUNCDECL_RPL/r $(CXXDEFS_H)' \
 	      -e '/definition of _GL_ARG_NONNULL/r $(ARG_NONNULL_H)' \
 	      -e '/definition of _GL_WARN_ON_USE/r $(WARN_ON_USE_H)' \

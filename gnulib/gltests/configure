@@ -728,6 +728,7 @@ HAVE_FEATURES_H
 HAVE_UNISTD_H
 NEXT_AS_FIRST_DIRECTIVE_UNISTD_H
 NEXT_UNISTD_H
+UNISTD_H_DEFINES_STRUCT_TIMESPEC
 PTHREAD_H_DEFINES_STRUCT_TIMESPEC
 SYS_TIME_H_DEFINES_STRUCT_TIMESPEC
 TIME_H_DEFINES_STRUCT_TIMESPEC
@@ -3044,10 +3045,10 @@ gl_header_list="$gl_header_list features.h"
 gl_header_list="$gl_header_list linewrap.h"
 gl_func_list="$gl_func_list _set_invalid_parameter_handler"
 gl_header_list="$gl_header_list sys/socket.h"
-gl_func_list="$gl_func_list getdtablesize"
 gl_header_list="$gl_header_list unistd.h"
 gl_func_list="$gl_func_list symlink"
 gl_header_list="$gl_header_list sys/stat.h"
+gl_func_list="$gl_func_list getdtablesize"
 gl_getopt_required=GNU
 gl_header_list="$gl_header_list getopt.h"
 gl_header_list="$gl_header_list sys/time.h"
@@ -3163,7 +3164,7 @@ ac_config_sub="$SHELL $ac_aux_dir/config.sub"  # Please don't use this var.
 ac_configure="$SHELL $ac_aux_dir/configure"  # Please don't use this var.
 
 
-am__api_version='1.14'
+am__api_version='1.15'
 
 # Find a good install program.  We prefer a C program (faster),
 # so one script is as good as another.  But avoid the broken or
@@ -3335,8 +3336,8 @@ test "$program_suffix" != NONE &&
 ac_script='s/[\\$]/&&/g;s/;s,x,x,$//'
 program_transform_name=`$as_echo "$program_transform_name" | sed "$ac_script"`
 
-# expand $ac_aux_dir to an absolute path
-am_aux_dir=`cd $ac_aux_dir && pwd`
+# Expand $ac_aux_dir to an absolute path.
+am_aux_dir=`cd "$ac_aux_dir" && pwd`
 
 if test x"${MISSING+set}" != xset; then
   case $am_aux_dir in
@@ -3355,7 +3356,7 @@ else
 $as_echo "$as_me: WARNING: 'missing' script is too old or missing" >&2;}
 fi
 
-if test x"${install_sh}" != xset; then
+if test x"${install_sh+set}" != xset; then
   case $am_aux_dir in
   *\ * | *\	*)
     install_sh="\${SHELL} '$am_aux_dir/install-sh'" ;;
@@ -3683,8 +3684,8 @@ MAKEINFO=${MAKEINFO-"${am_missing_run}makeinfo"}
 # <http://lists.gnu.org/archive/html/automake/2012-07/msg00014.html>
 mkdir_p='$(MKDIR_P)'
 
-# We need awk for the "check" target.  The system "awk" is bad on
-# some platforms.
+# We need awk for the "check" target (and possibly the TAP driver).  The
+# system "awk" is bad on some platforms.
 # Always define AMTAR for backward compatibility.  Yes, it's still used
 # in the wild :-(  We should find a proper way to deprecate it ...
 AMTAR='$${TAR-tar}'
@@ -3741,6 +3742,7 @@ END
     as_fn_error $? "Your 'rm' program is bad, sorry." "$LINENO" 5
   fi
 fi
+
 
 ac_config_headers="$ac_config_headers config.h"
 
@@ -6424,6 +6426,9 @@ done
 
 
 
+  XGETTEXT_EXTRA_OPTIONS=
+
+
   GNULIB_CHDIR=0;
   GNULIB_CHOWN=0;
   GNULIB_CLOSE=0;
@@ -6615,11 +6620,6 @@ $as_echo "$gl_cv_double_slash_root" >&6; }
 $as_echo "#define DOUBLE_SLASH_IS_DISTINCT_ROOT 1" >>confdefs.h
 
   fi
-
-
-
-
-
 
 
 
@@ -7866,6 +7866,24 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_func_getcwd_posix_signature" >&5
 $as_echo "$gl_cv_func_getcwd_posix_signature" >&6; }
+
+
+
+
+
+
+
+      ac_fn_c_check_decl "$LINENO" "getdtablesize" "ac_cv_have_decl_getdtablesize" "$ac_includes_default"
+if test "x$ac_cv_have_decl_getdtablesize" = xyes; then :
+  ac_have_decl=1
+else
+  ac_have_decl=0
+fi
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_GETDTABLESIZE $ac_have_decl
+_ACEOF
+
 
 
 
@@ -9929,14 +9947,15 @@ if ${gl_cv_func_lstat_dereferences_slashed_symlink+:} false; then :
 else
   rm -f conftest.sym conftest.file
      echo >conftest.file
-     if test "$as_ln_s" = "ln -s" && ln -s conftest.file conftest.sym; then
-       if test "$cross_compiling" = yes; then :
+     if test "$cross_compiling" = yes; then :
   case "$host_os" in
-                    # Guess yes on glibc systems.
-            *-gnu*) gl_cv_func_lstat_dereferences_slashed_symlink="guessing yes" ;;
-                    # If we don't know, assume the worst.
-            *)      gl_cv_func_lstat_dereferences_slashed_symlink="guessing no" ;;
-          esac
+          *-gnu*)
+            # Guess yes on glibc systems.
+            gl_cv_func_lstat_dereferences_slashed_symlink="guessing yes" ;;
+          *)
+            # If we don't know, assume the worst.
+            gl_cv_func_lstat_dereferences_slashed_symlink="guessing no" ;;
+        esac
 
 else
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
@@ -9946,10 +9965,12 @@ int
 main ()
 {
 struct stat sbuf;
-              /* Linux will dereference the symlink and fail, as required by
-                 POSIX.  That is better in the sense that it means we will not
-                 have to compile and use the lstat wrapper.  */
-              return lstat ("conftest.sym/", &sbuf) == 0;
+            if (symlink ("conftest.file", "conftest.sym") != 0)
+              return 1;
+            /* Linux will dereference the symlink and fail, as required by
+               POSIX.  That is better in the sense that it means we will not
+               have to compile and use the lstat wrapper.  */
+            return lstat ("conftest.sym/", &sbuf) == 0;
 
   ;
   return 0;
@@ -9964,11 +9985,6 @@ rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
   conftest.$ac_objext conftest.beam conftest.$ac_ext
 fi
 
-     else
-       # If the 'ln -s' command failed, then we probably don't even
-       # have an lstat function.
-       gl_cv_func_lstat_dereferences_slashed_symlink="guessing no"
-     fi
      rm -f conftest.sym conftest.file
 
 fi
@@ -11171,6 +11187,7 @@ $as_echo "$gl_cv_sys_struct_timespec_in_time_h" >&6; }
   TIME_H_DEFINES_STRUCT_TIMESPEC=0
   SYS_TIME_H_DEFINES_STRUCT_TIMESPEC=0
   PTHREAD_H_DEFINES_STRUCT_TIMESPEC=0
+  UNISTD_H_DEFINES_STRUCT_TIMESPEC=0
   if test $gl_cv_sys_struct_timespec_in_time_h = yes; then
     TIME_H_DEFINES_STRUCT_TIMESPEC=1
   else
@@ -11231,9 +11248,40 @@ fi
 $as_echo "$gl_cv_sys_struct_timespec_in_pthread_h" >&6; }
       if test $gl_cv_sys_struct_timespec_in_pthread_h = yes; then
         PTHREAD_H_DEFINES_STRUCT_TIMESPEC=1
+      else
+        { $as_echo "$as_me:${as_lineno-$LINENO}: checking for struct timespec in <unistd.h>" >&5
+$as_echo_n "checking for struct timespec in <unistd.h>... " >&6; }
+if ${gl_cv_sys_struct_timespec_in_unistd_h+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <unistd.h>
+
+int
+main ()
+{
+static struct timespec x; x.tv_sec = x.tv_nsec;
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  gl_cv_sys_struct_timespec_in_unistd_h=yes
+else
+  gl_cv_sys_struct_timespec_in_unistd_h=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_sys_struct_timespec_in_unistd_h" >&5
+$as_echo "$gl_cv_sys_struct_timespec_in_unistd_h" >&6; }
+        if test $gl_cv_sys_struct_timespec_in_unistd_h = yes; then
+          UNISTD_H_DEFINES_STRUCT_TIMESPEC=1
+        fi
       fi
     fi
   fi
+
 
 
 
@@ -12473,6 +12521,13 @@ rm -f core conftest.err conftest.$ac_objext \
 
 
 
+  XGETTEXT_EXTRA_OPTIONS="$XGETTEXT_EXTRA_OPTIONS --flag=argp_error:2:c-format"
+
+
+
+  XGETTEXT_EXTRA_OPTIONS="$XGETTEXT_EXTRA_OPTIONS --flag=argp_failure:4:c-format"
+
+
 
 
   if test $HAVE_MSVC_INVALID_PARAMETER_HANDLER = 1; then
@@ -12592,13 +12647,6 @@ $as_echo "#define DOUBLE_SLASH_IS_DISTINCT_ROOT 1" >>confdefs.h
 
 
 
-  :
-
-
-
-
-
-
 
 $as_echo "#define HAVE_DUP2 1" >>confdefs.h
 
@@ -12615,14 +12663,13 @@ else
              gl_cv_func_dup2_works="guessing no" ;;
            cygwin*) # on cygwin 1.5.x, dup2(1,1) returns 0
              gl_cv_func_dup2_works="guessing no" ;;
-           linux*) # On linux between 2008-07-27 and 2009-05-11, dup2 of a
-                   # closed fd may yield -EBADF instead of -1 / errno=EBADF.
-             gl_cv_func_dup2_works="guessing no" ;;
            aix* | freebsd*)
                    # on AIX 7.1 and FreeBSD 6.1, dup2 (1,toobig) gives EMFILE,
                    # not EBADF.
              gl_cv_func_dup2_works="guessing no" ;;
            haiku*) # on Haiku alpha 2, dup2(1, 1) resets FD_CLOEXEC.
+             gl_cv_func_dup2_works="guessing no" ;;
+           *-android*) # implemented using dup3(), which fails if oldfd == newfd
              gl_cv_func_dup2_works="guessing no" ;;
            *) gl_cv_func_dup2_works="guessing yes" ;;
          esac
@@ -12630,41 +12677,52 @@ else
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
-         #include <unistd.h>
-#include <fcntl.h>
-#include <errno.h>
+         #include <errno.h>
+             #include <fcntl.h>
+             #include <limits.h>
+             #include <sys/resource.h>
+             #include <unistd.h>
+             #ifndef RLIM_SAVED_CUR
+             # define RLIM_SAVED_CUR RLIM_INFINITY
+             #endif
+             #ifndef RLIM_SAVED_MAX
+             # define RLIM_SAVED_MAX RLIM_INFINITY
+             #endif
+
 int
 main ()
 {
 int result = 0;
-#ifdef HAVE_GETDTABLESIZE
-            int bad_fd = getdtablesize ();
-#else
-            int bad_fd = 1000000;
-#endif
-#ifdef FD_CLOEXEC
-            if (fcntl (1, F_SETFD, FD_CLOEXEC) == -1)
-              result |= 1;
-#endif
-            if (dup2 (1, 1) == 0)
-              result |= 2;
-#ifdef FD_CLOEXEC
-            if (fcntl (1, F_GETFD) != FD_CLOEXEC)
-              result |= 4;
-#endif
-            close (0);
-            if (dup2 (0, 0) != -1)
-              result |= 8;
-            /* Many gnulib modules require POSIX conformance of EBADF.  */
-            if (dup2 (2, bad_fd) == -1 && errno != EBADF)
-              result |= 16;
-            /* Flush out some cygwin core dumps.  */
-            if (dup2 (2, -1) != -1 || errno != EBADF)
-              result |= 32;
-            dup2 (2, 255);
-            dup2 (2, 256);
-            return result;
-
+             int bad_fd = INT_MAX;
+             struct rlimit rlim;
+             if (getrlimit (RLIMIT_NOFILE, &rlim) == 0
+                 && 0 <= rlim.rlim_cur && rlim.rlim_cur <= INT_MAX
+                 && rlim.rlim_cur != RLIM_INFINITY
+                 && rlim.rlim_cur != RLIM_SAVED_MAX
+                 && rlim.rlim_cur != RLIM_SAVED_CUR)
+               bad_fd = rlim.rlim_cur;
+             #ifdef FD_CLOEXEC
+               if (fcntl (1, F_SETFD, FD_CLOEXEC) == -1)
+                 result |= 1;
+             #endif
+             if (dup2 (1, 1) != 1)
+               result |= 2;
+             #ifdef FD_CLOEXEC
+               if (fcntl (1, F_GETFD) != FD_CLOEXEC)
+                 result |= 4;
+             #endif
+             close (0);
+             if (dup2 (0, 0) != -1)
+               result |= 8;
+             /* Many gnulib modules require POSIX conformance of EBADF.  */
+             if (dup2 (2, bad_fd) == -1 && errno != EBADF)
+               result |= 16;
+             /* Flush out some cygwin core dumps.  */
+             if (dup2 (2, -1) != -1 || errno != EBADF)
+               result |= 32;
+             dup2 (2, 255);
+             dup2 (2, 256);
+             return result;
   ;
   return 0;
 }
@@ -13262,7 +13320,15 @@ $as_echo "#define GNULIB_TEST_GETCWD 1" >>confdefs.h
 
 
 
-  if test $ac_cv_func_getdtablesize = yes; then
+
+  :
+
+
+
+
+
+  if test $ac_cv_func_getdtablesize = yes &&
+     test $ac_cv_have_decl_getdtablesize = yes; then
     # Cygwin 1.7.25 automatically increases the RLIMIT_NOFILE soft limit
     # up to an unchangeable hard limit; all other platforms correctly
     # require setrlimit before getdtablesize() can report a larger value.
@@ -15387,6 +15453,48 @@ $as_echo "$gl_cv_next_stdio_h" >&6; }
 
 
 
+
+        { $as_echo "$as_me:${as_lineno-$LINENO}: checking which flavor of printf attribute matches inttypes macros" >&5
+$as_echo_n "checking which flavor of printf attribute matches inttypes macros... " >&6; }
+if ${gl_cv_func_printf_attribute_flavor+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+       #define __STDC_FORMAT_MACROS 1
+       #include <stdio.h>
+       #include <inttypes.h>
+       /* For non-mingw systems, compilation will trivially succeed.
+          For mingw, compilation will succeed for older mingw (system
+          printf, "I64d") and fail for newer mingw (gnu printf, "lld"). */
+       #if ((defined _WIN32 || defined __WIN32__) && ! defined __CYGWIN__) && \
+         (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 4))
+       extern char PRIdMAX_probe[sizeof PRIdMAX == sizeof "I64d" ? 1 : -1];
+       #endif
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  gl_cv_func_printf_attribute_flavor=system
+else
+  gl_cv_func_printf_attribute_flavor=gnu
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gl_cv_func_printf_attribute_flavor" >&5
+$as_echo "$gl_cv_func_printf_attribute_flavor" >&6; }
+  if test "$gl_cv_func_printf_attribute_flavor" = gnu; then
+
+$as_echo "#define GNULIB_PRINTF_ATTRIBUTE_FLAVOR_GNU 1" >>confdefs.h
+
+  fi
 
       GNULIB_FSCANF=1
 

@@ -1,5 +1,5 @@
 /* Test of <stddef.h> substitute.
-   Copyright (C) 2009-2014 Free Software Foundation, Inc.
+   Copyright (C) 2009-2015 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -55,6 +55,16 @@ verify (alignof (ptrdiff_t) <= alignof (max_align_t));
 verify (alignof (size_t) <= alignof (max_align_t));
 verify (alignof (wchar_t) <= alignof (max_align_t));
 verify (alignof (struct d) <= alignof (max_align_t));
+#if defined __GNUC__ || defined __IBM__ALIGNOF__
+verify (__alignof__ (double) <= __alignof__ (max_align_t));
+verify (__alignof__ (int) <= __alignof__ (max_align_t));
+verify (__alignof__ (long double) <= __alignof__ (max_align_t));
+verify (__alignof__ (long int) <= __alignof__ (max_align_t));
+verify (__alignof__ (ptrdiff_t) <= __alignof__ (max_align_t));
+verify (__alignof__ (size_t) <= __alignof__ (max_align_t));
+verify (__alignof__ (wchar_t) <= __alignof__ (max_align_t));
+verify (__alignof__ (struct d) <= __alignof__ (max_align_t));
+#endif
 
 int
 main (void)
