@@ -6,6 +6,7 @@ if [[ ! -d "$BUILD_DIR/" ]] ; then mkdir "$BUILD_DIR/" ; fi &&
 
 cd "$BUILD_DIR" &&
 "../$GNULIB_DIR/configure" &&
+make clean &&
 make &&
 
 exit 0 # EX_OK

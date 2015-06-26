@@ -1,9 +1,20 @@
-#!/usr/bin/env bash
+shopt -s nullglob
+shopt -s globstar
 
-CC="cc -std=c99 -Wall"
+CC="cc -std=c99"
+AR="ar -rs"
 INSTALL="install -v"
 LN="ln -sf -v"
 
-LIBRARY_NAME="libargp"
 BUILD_DIR="output"
-GNULIB_DIR="gnulib"
+BUILD_OBJ_DIR="$BUILD_DIR/obj"
+BUILD_BIN_DIR="$BUILD_DIR/bin"
+BUILD_LIB_DIR="$BUILD_DIR/lib"
+
+if [[ -z "$INSTALL_PREFIX" ]] ; then INSTALL_PREFIX="/usr/local" ; fi
+INSTALL_BIN_PREFIX="$INSTALL_PREFIX/bin"
+INSTALL_LIB_PREFIX="$INSTALL_PREFIX/lib"
+INSTALL_INCLUDE_PREFIX="$INSTALL_PREFIX/include"
+INSTALL_MAN_PREFIX="$INSTALL_PREFIX/share/man"
+
+source ./info

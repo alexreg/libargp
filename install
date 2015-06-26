@@ -2,9 +2,7 @@
 
 source ./common
 
-if [[ -z "$INSTALL_PREFIX" ]] ; then INSTALL_PREFIX="/usr/local" ; fi
-
-$INSTALL -m 644 "$BUILD_DIR/gllib/libargp.a" "$INSTALL_PREFIX/lib" &&
-$INSTALL -m 644 "include/argp.h" "$INSTALL_PREFIX/include" &&
+$INSTALL -m 644 "$BUILD_DIR/gllib/libargp.a" "$INSTALL_LIB_PREFIX" &&
+$INSTALL -m 644 "include/argp.h" "$INSTALL_INCLUDE_PREFIX" &&
 
 exit 0 # EX_OK

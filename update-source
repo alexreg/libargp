@@ -19,5 +19,6 @@ if ! [[ $? ]] ; then
 fi
 
 rm -Rf "$GNULIB_DIR_BACKUP"
+
 echo "Successfully reimported gnulib modules"
 exit 0 # EX_OK
